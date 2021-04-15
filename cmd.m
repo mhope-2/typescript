@@ -1,0 +1,1 @@
+tsc script.ts --target es6 --outfile script.js

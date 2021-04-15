@@ -569,3 +569,233 @@ class Kitchen {
 let kitchen = new Kitchen("Knife","Stool")
 
 console.log(kitchen.Items)
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Namespaces
+
+namespace First {
+    export class Example {
+    log() {
+        console.log('Logging from First.Example.log()');
+            } 
+        }
+    }
+
+namespace Second {
+    export class Example {
+        log() {
+          console.log('Logging from Second.Example.log()');
+     } 
+    }
+    }
+
+const first = new First.Example();
+// Logging from First.Example.log() first.log();
+const second = new Second.Example(); // Logging from Second.Example.log()
+second.log();
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Nested Namespaces
+
+namespace FirstLevel {
+    export namespace SecondLevel {
+        export class Example {
+         } 
+        }
+    }
+
+namespace FirstLevel.SecondLevel.ThirdLevel { 
+    export class Example {
+    } 
+    }
+
+const nested = new FirstLevel.SecondLevel.Example();
+const dotted = new FirstLevel.SecondLevel.ThirdLevel.Example();
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Public and Private Members
+
+namespace Shipping {
+    // Available as Shipping.Ship 
+    export interface Ship {
+            name: string;
+            port: string;
+            displacement: number;
+    }
+    // Available as Shipping.Ferry 
+    export class Ferry implements Ship {
+            constructor(
+                public name: string,
+                public port: string,
+                public displacement: number) {
+    } 
+}
+
+// Only available inside of the Shipping module
+const defaultDisplacement = 4000;
+    class PrivateShip implements Ship {
+        constructor(
+            public name: string,
+            public port: string,
+            public displacement: number = defaultDisplacement) {
+            } 
+        }
+        }
+
+const ferry = new Shipping.Ferry('Assurance', 'London', 3220);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Import
+
+namespace Docking {
+
+    import Ship = Shipping.Ship;
+
+    export class Dock {
+    private dockedShips: Ship[] = [];
+
+    arrival(ship: Ship) { 
+        this.dockedShips.push(ship);
+        } 
+     }
+    }
+
+const dock = new Docking.Dock();
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Decorators
+
+// let log = (target: any, key: string, descriptor: any)=>{
+//     console.log(key)
+// }
+
+// class Calculator{
+//     @log
+//     square(n: number){
+//         return n * n
+//     }
+// }
+
+// const calc = new Calculator()
+
+// console.log(calc.square(9))
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// DomainId type definition
+type DomainId_<T extends string> = {
+        type: T,
+        value: number,
+    }
+
+// CustomerId
+type CustomerId_ = DomainId_<'CustomerId'>;
+const createCustomerId = (value: number): CustomerId_ => ({ type: 'CustomerId', value });    
+
+// Product Id
+type ProductId_ = DomainId_<'ProductId'>;
+const createProductId = (value: number): ProductId_ => ({ type: 'ProductId', value });
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// OOP Delegation
+//
+interface ControlPanel {
+    startAlarm(message: string): any;
+}
+//
+interface Sensor {
+    check(): any;
+}
+//
+class HeatSensor {
+    private upperLimit = 38; 
+    private sensor = {
+        read: () => Math.floor(Math.random() * 100) 
+}
+        
+    constructor(private controlPanel: ControlPanel) {}
+
+    check() {
+    if (this.sensor.read() > this.upperLimit) {
+        // Calling back to the wrapper
+        this.controlPanel.startAlarm('Overheating!'); 
+            }
+     } 
+}
+
+//
+class MasterControlPanel {
+    private sensors: Sensor[] = [];
+    constructor() {
+    // Instantiating the delegate HeatSensor this.sensors.push(new HeatSensor(this));
+    }
+
+    start() {
+        for (let sensor of this.sensors) {
+            sensor.check(); 
+        }
+            window.setTimeout(() => this.start(), 1000); }
+            startAlarm(message: string) { 
+                console.log('Alarm! ' + message);
+        } 
+    }
+        
+
+const controlPanel = new MasterControlPanel(); 
+
+controlPanel.start();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
