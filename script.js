@@ -1,9 +1,3 @@
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //enums
 var DiscFlags;
@@ -413,18 +407,39 @@ var Docking;
     Docking.Dock = Dock;
 })(Docking || (Docking = {}));
 const dock = new Docking.Dock();
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Decorators
-let log = (target, key, descriptor) => {
-    console.log(key);
-};
-class Calculator {
-    square(n) {
-        return n * n;
+const createCustomerId = (value) => ({ type: 'CustomerId', value });
+const createProductId = (value) => ({ type: 'ProductId', value });
+//
+class HeatSensor {
+    constructor(controlPanel) {
+        this.controlPanel = controlPanel;
+        this.upperLimit = 38;
+        this.sensor = {
+            read: () => Math.floor(Math.random() * 100)
+        };
+    }
+    check() {
+        if (this.sensor.read() > this.upperLimit) {
+            // Calling back to the wrapper
+            this.controlPanel.startAlarm('Overheating!');
+        }
     }
 }
-__decorate([
-    log
-], Calculator.prototype, "square", null);
-const calc = new Calculator();
-console.log(calc.square(9));
+//
+class MasterControlPanel {
+    constructor() {
+        this.sensors = [];
+        // Instantiating the delegate HeatSensor this.sensors.push(new HeatSensor(this));
+    }
+    start() {
+        for (let sensor of this.sensors) {
+            sensor.check();
+        }
+        window.setTimeout(() => this.start(), 1000);
+    }
+    startAlarm(message) {
+        console.log('Alarm! ' + message);
+    }
+}
+const controlPanel = new MasterControlPanel();
+controlPanel.start();
