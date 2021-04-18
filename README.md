@@ -4,4 +4,6 @@
 2. tsc <name of ts file> --target es6 --outfile <name of resulting js file form compiled ts file>
 3. node <name of resulting js file form compiled ts file>
 
+### NB: Some functionalities are only allowed in the browser
+
 #### sample command found in ./cmd.m

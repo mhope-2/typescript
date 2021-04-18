@@ -443,7 +443,7 @@ class Song implements Audio {
     }
 
 class Playlist {
-    constructor(public songs: Audio[]) {}
+    constructor(protected songs: Audio[]) {}
     
     play = () => {
         var song = this.songs.pop(); 
@@ -725,58 +725,222 @@ class HeatSensor {
 }
 
 //
-class MasterControlPanel {
-    private sensors: Sensor[] = [];
-    constructor() {
-    // Instantiating the delegate HeatSensor this.sensors.push(new HeatSensor(this));
-    }
+// class MasterControlPanel {
+//     private sensors: Sensor[] = [];
+//     constructor() {
+//     // Instantiating the delegate HeatSensor 
+//      this.sensors.push(new HeatSensor(this));
+//     }
 
-    start() {
-        for (let sensor of this.sensors) {
-            sensor.check(); 
-        }
-            window.setTimeout(() => this.start(), 1000); }
-            startAlarm(message: string) { 
-                console.log('Alarm! ' + message);
-        } 
-    }
+//     start() {
+//         for (let sensor of this.sensors) {
+//             sensor.check(); 
+//         }
+//             window.setTimeout(() => this.start(), 1000); }
+//             startAlarm(message: string) { 
+//                 console.log('Alarm! ' + message);
+//         } 
+//     }
         
 
-const controlPanel = new MasterControlPanel(); 
+// const controlPanel = new MasterControlPanel(); 
 
-controlPanel.start();
-
-
+// controlPanel.start();
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Callback
+
+function go(callback: (arg: string) => void) { 
+    callback.call(this, 'Example Argument');
+}
+function callbackFunction(arg: string) {
+    console.log(arg);
+}
+go(callbackFunction);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Promises
+interface FictitiousData {
+    id: number,
+    name: string
+}
+
+
+class FictitiousAPI {
+
+    static data : { [index:number]: FictitiousData } = {
+        1: { id: 1, name: 'Aramis' },
+        2: { id: 2, name: 'Athos' },
+        3: { id: 3, name: 'Porthos' },
+        4: { id: 4, name: 'D\'Artagnan' }
+    }
+
+    // static getData func
+    static getData(id: number){
+        return new Promise( (fulfil:(data:FictitiousData)=>void, reject:(reason:string)=>void)=>{
+            // Simulating async data access with a timeout
+            window.setTimeout(()=>{
+                const result = this.data[id]
+
+                if (typeof result == 'undefined'){
+                    reject('No matching record')
+                }
+                fulfil(result)
+            },200)    
+        })
+    }
+
+}
 
 
 
+// Single call: 'Aramis' 
+FictitiousAPI.getData(1)
+.then(function (data) { console.log(data.name);
+});
+
+// Error handling (works) 
+FictitiousAPI.getData(5)
+.then(function (data) { console.log(data.name);
+})
+.catch(function (error) {
+console.log('Caught ' + error);
+})
+
+// chain call
+FictitiousAPI.getData(1) 
+.then((data) => {
+    console.log(data.name);
+    return FictitiousAPI.getData(2); 
+})
+.then((data) => {
+    if (data.name == 'Athos') {
+    console.log(data.id + ' ' + data.name); 
+    } else {
+        console.log(data.name)
+    }
+    return FictitiousAPI.getData(3); 
+})
+.then((data) => { 
+        console.log(data.name)
+        return FictitiousAPI.getData(4)
+    })
+.then((data) => {
+    console.log(data.name)
+    return FictitiousAPI.getData(5); 
+})
+.catch((error) => { 
+    console.log('Caught ' + error);
+});
+
+// Alt to chain call
+Promise.all([ FictitiousAPI.getData(1), 
+              FictitiousAPI.getData(2), 
+              FictitiousAPI.getData(3), 
+              FictitiousAPI.getData(4)
+]).then((values) => {
+    for (let val of values) {
+        console.log(val.name); 
+    }
+}).catch((error) => { 
+    console.log('Caught ' + error);
+});
+
+// Fastest Promise
+
+Promise.race([ 
+    FictitiousAPI.getData(1), 
+    FictitiousAPI.getData(2), 
+    FictitiousAPI.getData(3), 
+    FictitiousAPI.getData(4)
+])
+.then((data) => { 
+    console.log(data.name);
+})
+.catch((error) => { 
+    console.log('Caught ' + error);
+});
+
+//
+// Fetch API
+fetch('./api/musketeers.json') 
+    .then((response) => {
+        if (response.status !== 200) {
+    // Status code not likely to be usable, i.e. a redirect or an error 
+            console.log('Status Code:', response.status);
+            return;
+        }
+        return response.json(); 
+        })
+        .then((data) => {
+            console.log(data); })
+       .catch((error) => {
+            // i.e. network failure
+            console.log('Error making request', error);
+        });
 
 
+// Web Sockets
+const webSocket = new WebSocket('ws://localhost:8080/WS')
+webSocket.onmessage = (message: MessageEvent) => { 
+    // Log message from server 
+    console.log(message.data);
+}
+webSocket.send('Message To Server');
+webSocket.close()
 
+// Session Storage
 
+const storageKey = 'username';
+// null the first time, 'Stored value' each subsequent time 
+console.log(sessionStorage.getItem(storageKey))
+sessionStorage.setItem(storageKey, 'mhope')
 
+ 
+// Remove an item using a key
+sessionStorage.removeItem(storageKey)
+// Clear all items 
+sessionStorage.clear()
 
+// Local Storage
 
+// export const addEvent: (elem: Window | Document | Element | NodeListOf < Element > , eventName: string, callback: Function) => void = (function() {
+//     if (document.addEventListener) {
+//         // Handles modern browsers
+//         return function(elem, eventName, callback) {
+//             if (elem && elem.addEventListener) {
+//                 // Handles a single element 
+//                 elem.addEventListener(eventName, callback, false);
+//             } else if (elem && elem.length) {
+//                 // Handles a collection of elements (recursively) 
+//                 for (let i = 0; i < elem.length; i++) {
+//                     addEvent(elem[i], eventName, callback);
+//                 }
+//             }
+//         };
+//     } else {
+//         // Handles some old browsers
+//         return function(elem, eventName, callback) {
+//             if (elem && elem.attachEvent) {
+//                 // Handles a single element 
+//                 elem.attachEvent('on' + eventName, function() {
+//                     return callback.call(elem, window.event);
+//                 });
+//             } else if (elem && elem.length) {
+//                 // Handles a collection of elements (recursively) 
+//                 for (let i = 0; i < elem.length; i++) {
+//                     addEvent(elem[i], eventName, callback);
+//                 }
+//             }
+//         };
+//     }
+// })();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// const storageKey = 'Example';
+// localStorage.setItem(storageKey, 'Stored value ' + Date.now());
+// addEvent(window, 'storage', (event: StorageEvent) => {
+// console.log(`${event.key} "${event.oldValue}" changed to "${event.newValue}"`);
 
 
 
